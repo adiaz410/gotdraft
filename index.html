@@ -257,7 +257,7 @@
             "9. Tully", "10. Arryn", "11. Frey", "12. Wildlings"
         ];
 
-        let picks = []; // Stores pick history synced from cloud
+        let picks = []; 
 
         const playerPool = [
             { name: "Patrick Mahomes", pos: "QB", team: "KC" },
@@ -314,19 +314,20 @@
 
         function renderState(state) {
             if (!state) return;
+            
+            // Only update if cloud state has picks or index matching/exceeding local to prevent overwriting active typing
             currentPickIndex = state.currentPickIndex || 0;
             picks = state.picks || [];
             if (state.teams) teams = state.teams;
 
-            // Rebuild headers in case team names changed remotely
             const headers = document.querySelectorAll('.team-header');
             headers.forEach((h, idx) => {
-                if (teams[idx] && h.innerText !== teams[idx]) {
+                if (teams[idx] && h.innerText !== teams[idx] && document.activeElement !== h) {
                     h.innerText = teams[idx];
                 }
             });
 
-            // Clear board cells
+            // Reset board visuals
             for (let r = 0; r < totalRounds; r++) {
                 for (let t = 0; t < totalTeams; t++) {
                     const cell = document.getElementById(`cell-${r}-${t}`);
@@ -336,7 +337,7 @@
                 }
             }
 
-            // Repopulate board with current picks
+            // Populate picks
             picks.forEach((pick, index) => {
                 const { round, col } = getRowAndCol(index + 1);
                 const cellElement = document.getElementById(`cell-${round}-${col}`);
@@ -358,18 +359,19 @@
             try {
                 const res = await fetch(`${WORKER_URL}/api/state`);
                 const state = await res.json();
-                renderState(state);
+                // Only re-render from cloud if pick counts differ to prevent overwriting local actions mid-flight
+                if (state && state.currentPickIndex !== undefined) {
+                    if (state.currentPickIndex !== currentPickIndex || state.picks.length !== picks.length) {
+                        renderState(state);
+                    }
+                }
             } catch (err) {
                 console.error("Error fetching state:", err);
             }
         }
 
         async function syncStateToCloud() {
-            const payload = {
-                currentPickIndex,
-                picks,
-                teams
-            };
+            const payload = { currentPickIndex, picks, teams };
             try {
                 await fetch(`${WORKER_URL}/api/update`, {
                     method: 'POST',
@@ -441,6 +443,7 @@
         async function makePick() {
             if (!selectedPlayer || currentPickIndex >= totalTeams * totalRounds) return;
 
+            // 1. Update local array immediately
             picks.push({
                 name: selectedPlayer.name,
                 position: selectedPlayer.pos,
@@ -450,23 +453,24 @@
 
             currentPickIndex++;
 
-            // Reset selection inputs
+            // 2. Clear inputs immediately
+            const activePlayer = selectedPlayer;
             selectedPlayer = null;
             document.getElementById('player-search').value = '';
             document.getElementById('selected-preview').innerHTML = '<span style="color: var(--text-muted);">No player selected</span>';
             document.getElementById('submit-btn').disabled = true;
 
-            // Sync update instantly to Cloudflare Worker/KV
+            // 3. Force instant local UI render so it appears instantly without waiting for cloud round-trip
+            renderState({ currentPickIndex, picks, teams });
+
+            // 4. Push update to Cloudflare KV in background
             await syncStateToCloud();
-            fetchStateFromCloud();
         }
 
-        window.onload = () => {
+        window.onload = async () => {
             buildGridStructure();
-            fetchStateFromCloud();
-            // Poll Cloudflare every 2 seconds for real-time multi-user sync
+            await fetchStateFromCloud();
+            // Poll Cloudflare every 2 seconds for background sync from other users
             setInterval(fetchStateFromCloud, 2000);
         };
     </script>
-</body>
-</html>
