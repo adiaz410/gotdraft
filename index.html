@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game of Throws - Draft Board</title>
+    <style>
+        :root {
+            --bg-dark: #121418;
+            --panel-bg: #1c2026;
+            --border-color: #2f3640;
+            --accent-gold: #f39c12;
+            --text-main: #f5f6fa;
+            --text-muted: #718093;
+            
+            /* Position Colors */
+            --pos-qb: #c0392b;
+            --pos-rb: #27ae60;
+            --pos-wr: #2980b9;
+            --pos-te: #d35400;
+            --pos-k: #8e44ad;
+            --pos-def: #2c3e50;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); padding: 20px; }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+        header h1 { color: var(--accent-gold); font-size: 2.2rem; text-transform: uppercase; letter-spacing: 2px; }
+
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Top Horizontal Control Panel */
+        .control-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .console-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .clock-box {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            padding: 8px 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .clock-box .on-clock-team { font-size: 1rem; font-weight: bold; color: var(--accent-gold); }
+        
+        .form-group { position: relative; min-width: 280px; }
+        .form-group label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 3px; }
+        .form-group input {
+            width: 100%;
+            padding: 8px 12px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 4px;
+        }
+
+        /* Autocomplete Suggestions Box */
+        .autocomplete-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-dark);
+            border: 1px solid var(--accent-gold);
+            border-top: none;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 99;
+            border-radius: 0 0 4px 4px;
+        }
+        .autocomplete-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .autocomplete-item:hover { background: rgba(243, 156, 18, 0.2); }
+        .item-meta { color: var(--text-muted); font-size: 0.75rem; }
+
+        .console-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .selected-preview {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            min-width: 200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn-draft {
+            padding: 9px 20px;
+            background: var(--accent-gold);
+            color: #000;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: opacity 0.2s;
+        }
+        .btn-draft:hover { opacity: 0.9; }
+        .btn-draft:disabled { background: var(--text-muted); cursor: not-allowed; }
+
+        /* Draft Board Grid */
+        .board-wrapper {
+            overflow-x: auto;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .draft-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 120px);
+            gap: 8px;
+        }
+        .team-header {
+            background: var(--bg-dark);
+            text-align: center;
+            padding: 10px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            border-bottom: 3px solid var(--accent-gold);
+            border-radius: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            outline: none;
+        }
+        .team-header:focus { border-bottom-color: var(--text-main); background: #1a1e24; }
+        
+        .draft-cell {
+            background: var(--bg-dark);
+            border: 1px dashed var(--border-color);
+            height: 75px;
+            border-radius: 4px;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-size: 0.75rem;
+        }
+        .draft-cell.filled {
+            border: 1px solid rgba(255,255,255,0.2);
+            border-style: solid;
+        }
+        .pick-number {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+        .draft-cell.filled .pick-number { color: rgba(255,255,255,0.7); }
+
+        .player-info {
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .pos-badge {
+            align-self: flex-start;
+            font-size: 0.6rem;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+            color: white;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Full cell position background color fills */
+        .fill-qb { background-color: var(--pos-qb) !important; color: #fff; }
+        .fill-rb { background-color: var(--pos-rb) !important; color: #fff; }
+        .fill-wr { background-color: var(--pos-wr) !important; color: #fff; }
+        .fill-te { background-color: var(--pos-te) !important; color: #fff; }
+        .fill-k  { background-color: var(--pos-k) !important; color: #fff; }
+        .fill-def { background-color: var(--pos-def) !important; color: #fff; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Game of Throws</h1>
+    </header>
+
+    <div class="dashboard-container">
+        <!-- Top Horizontal Control Panel -->
+        <div class="control-panel">
+            <div class="console-left">
+                <div class="clock-box">
+                    <span style="font-size: 0.7rem; color: var(--text-muted);">PICK #<span id="display-pick-num">1</span></span>
+                    <div class="on-clock-team" id="display-on-clock">Team 1</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="player-search">Search Player to Draft</label>
+                    <input type="text" id="player-search" placeholder="Type player name..." autocomplete="off" oninput="filterPlayers()">
+                    <div id="autocomplete-results" class="autocomplete-list"></div>
+                </div>
+            </div>
+
+            <div class="console-right">
+                <div class="selected-preview" id="selected-preview">
+                    <span style="color: var(--text-muted);">No player selected</span>
+                </div>
+                <button class="btn-draft" id="submit-btn" onclick="makePick()" disabled>Submit Pick</button>
+            </div>
+        </div>
+
+        <!-- Visual Draft Board Grid -->
+        <div class="board-wrapper">
+            <div class="draft-grid" id="draft-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        // PASTE YOUR CLOUDFLARE WORKER URL HERE:
+        const WORKER_URL = 'YOUR_CLOUDFLARE_WORKER_URL_HERE';
+
+        const totalTeams = 12;
+        const totalRounds = 16;
+        let currentPickIndex = 0;
+        let selectedPlayer = null;
+
+        let teams = [
+            "1. Stark", "2. Lannister", "3. Targaryen", "4. Baratheon", 
+            "5. Martell", "6. Greyjoy", "7. Tyrell", "8. Bolton", 
+            "9. Tully", "10. Arryn", "11. Frey", "12. Wildlings"
+        ];
+
+        let picks = []; // Stores pick history synced from cloud
+
+        const playerPool = [
+            { name: "Patrick Mahomes", pos: "QB", team: "KC" },
+            { name: "Josh Allen", pos: "QB", team: "BUF" },
+            { name: "Jalen Hurts", pos: "QB", team: "PHI" },
+            { name: "Lamar Jackson", pos: "QB", team: "BAL" },
+            { name: "Christian McCaffrey", pos: "RB", team: "SF" },
+            { name: "Breece Hall", pos: "RB", team: "NYJ" },
+            { name: "Bijan Robinson", pos: "RB", team: "ATL" },
+            { name: "Ja'Marr Chase", pos: "WR", team: "CIN" },
+            { name: "CeeDee Lamb", pos: "WR", team: "DAL" },
+            { name: "Tyreek Hill", pos: "WR", team: "MIA" },
+            { name: "Justin Jefferson", pos: "WR", team: "MIN" },
+            { name: "Amon-Ra St. Brown", pos: "WR", team: "DET" },
+            { name: "Travis Kelce", pos: "TE", team: "KC" },
+            { name: "Sam LaPorta", pos: "TE", team: "DET" },
+            { name: "Mark Andrews", pos: "TE", team: "BAL" },
+            { name: "Justin Tucker", pos: "K", team: "BAL" },
+            { name: "San Francisco 49ers", pos: "DEF", team: "SF" },
+            { name: "Dallas Cowboys", pos: "DEF", team: "DAL" }
+        ];
+
+        function buildGridStructure() {
+            const grid = document.getElementById('draft-grid');
+            grid.innerHTML = '';
+
+            teams.forEach((team, index) => {
+                const header = document.createElement('div');
+                header.className = 'team-header';
+                header.contentEditable = true;
+                header.innerText = team;
+                header.onblur = (e) => { 
+                    teams[index] = e.target.innerText.trim(); 
+                    syncStateToCloud(); 
+                };
+                grid.appendChild(header);
+            });
+
+            for (let r = 0; r < totalRounds; r++) {
+                for (let t = 0; t < totalTeams; t++) {
+                    const colIndex = (r % 2 === 0) ? t : (totalTeams - 1 - t);
+                    const cell = document.createElement('div');
+                    cell.className = 'draft-cell';
+                    cell.id = `cell-${r}-${colIndex}`;
+                    
+                    cell.innerHTML = `
+                        <span class="pick-number">R${r+1} (P${(r * totalTeams) + t + 1})</span>
+                        <div class="cell-content" id="content-${r}-${colIndex}"></div>
+                    `;
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function renderState(state) {
+            if (!state) return;
+            currentPickIndex = state.currentPickIndex || 0;
+            picks = state.picks || [];
+            if (state.teams) teams = state.teams;
+
+            // Rebuild headers in case team names changed remotely
+            const headers = document.querySelectorAll('.team-header');
+            headers.forEach((h, idx) => {
+                if (teams[idx] && h.innerText !== teams[idx]) {
+                    h.innerText = teams[idx];
+                }
+            });
+
+            // Clear board cells
+            for (let r = 0; r < totalRounds; r++) {
+                for (let t = 0; t < totalTeams; t++) {
+                    const cell = document.getElementById(`cell-${r}-${t}`);
+                    const content = document.getElementById(`content-${r}-${t}`);
+                    if (cell) cell.className = 'draft-cell';
+                    if (content) content.innerHTML = '';
+                }
+            }
+
+            // Repopulate board with current picks
+            picks.forEach((pick, index) => {
+                const { round, col } = getRowAndCol(index + 1);
+                const cellElement = document.getElementById(`cell-${round}-${col}`);
+                const contentDiv = document.getElementById(`content-${round}-${col}`);
+                
+                if (cellElement && contentDiv) {
+                    cellElement.classList.add('filled', `fill-${pick.position.toLowerCase()}`);
+                    contentDiv.innerHTML = `
+                        <div class="player-info">${pick.name}</div>
+                        <span class="pos-badge">${pick.position}</span>
+                    `;
+                }
+            });
+
+            updateConsole();
+        }
+
+        async function fetchStateFromCloud() {
+            try {
+                const res = await fetch(`${WORKER_URL}/api/state`);
+                const state = await res.json();
+                renderState(state);
+            } catch (err) {
+                console.error("Error fetching state:", err);
+            }
+        }
+
+        async function syncStateToCloud() {
+            const payload = {
+                currentPickIndex,
+                picks,
+                teams
+            };
+            try {
+                await fetch(`${WORKER_URL}/api/update`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (err) {
+                console.error("Error syncing state:", err);
+            }
+        }
+
+        function filterPlayers() {
+            const query = document.getElementById('player-search').value.toLowerCase().trim();
+            const resultsContainer = document.getElementById('autocomplete-results');
+            resultsContainer.innerHTML = '';
+
+            if (!query) return;
+
+            const draftedNames = new Set(picks.map(p => p.name));
+            const filtered = playerPool.filter(p => 
+                !draftedNames.has(p.name) && 
+                (p.name.toLowerCase().includes(query) || p.pos.toLowerCase() === query)
+            );
+
+            filtered.forEach(player => {
+                const item = document.createElement('div');
+                item.className = 'autocomplete-item';
+                item.innerHTML = `<span><strong>${player.name}</strong> (${player.team})</span> <span class="item-meta">${player.pos}</span>`;
+                item.onclick = () => selectPlayer(player);
+                resultsContainer.appendChild(item);
+            });
+        }
+
+        function selectPlayer(player) {
+            selectedPlayer = player;
+            document.getElementById('player-search').value = `${player.name} (${player.team})`;
+            document.getElementById('autocomplete-results').innerHTML = '';
+
+            document.getElementById('selected-preview').innerHTML = `
+                <span><strong>${player.name}</strong> (${player.team})</span>
+                <span class="pos-badge">${player.pos}</span>
+            `;
+            document.getElementById('submit-btn').disabled = false;
+        }
+
+        function getRowAndCol(pickNum) {
+            const zeroBased = pickNum - 1;
+            const round = Math.floor(zeroBased / totalTeams);
+            const rawCol = zeroBased % totalTeams;
+            const col = (round % 2 === 0) ? rawCol : (totalTeams - 1 - rawCol);
+            return { round, col };
+        }
+
+        function updateConsole() {
+            if (currentPickIndex >= totalTeams * totalRounds) {
+                document.getElementById('display-pick-num').innerText = "DONE";
+                document.getElementById('display-on-clock').innerText = "Draft Complete!";
+                document.getElementById('player-search').disabled = true;
+                return;
+            }
+
+            const currentPickNum = currentPickIndex + 1;
+            document.getElementById('display-pick-num').innerText = currentPickNum;
+
+            const { round, col } = getRowAndCol(currentPickNum);
+            document.getElementById('display-on-clock').innerText = teams[col];
+        }
+
+        async function makePick() {
+            if (!selectedPlayer || currentPickIndex >= totalTeams * totalRounds) return;
+
+            picks.push({
+                name: selectedPlayer.name,
+                position: selectedPlayer.pos,
+                team: selectedPlayer.team,
+                draftedBy: teams[getRowAndCol(currentPickIndex + 1).col]
+            });
+
+            currentPickIndex++;
+
+            // Reset selection inputs
+            selectedPlayer = null;
+            document.getElementById('player-search').value = '';
+            document.getElementById('selected-preview').innerHTML = '<span style="color: var(--text-muted);">No player selected</span>';
+            document.getElementById('submit-btn').disabled = true;
+
+            // Sync update instantly to Cloudflare Worker/KV
+            await syncStateToCloud();
+            fetchStateFromCloud();
+        }
+
+        window.onload = () => {
+            buildGridStructure();
+            fetchStateFromCloud();
+            // Poll Cloudflare every 2 seconds for real-time multi-user sync
+            setInterval(fetchStateFromCloud, 2000);
+        };
+    </script>
+</body>
+</html>
