@@ -4,25 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game of Throws - Draft Board</title>
+    <!-- Import Cinzel Font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #121418;
+            --bg-dark: #000000;
             --panel-bg: #1c2026;
             --border-color: #2f3640;
-            --accent-gold: #f39c12;
-            --text-main: #f5f6fa;
+            --accent-gold: #c5a059;
+            --text-main: #c5a059;
             --text-muted: #718093;
             
             /* Position Colors */
-            --pos-qb: #c0392b;
-            --pos-rb: #27ae60;
+            --pos-qb: #fc778b;
+            --pos-rb: #5cab7d;
             --pos-wr: #2980b9;
-            --pos-te: #d35400;
-            --pos-k: #8e44ad;
-            --pos-def: #2c3e50;
+            --pos-te: #fca335;
+            --pos-k: #9c5bbd;
+            --pos-def: #946448;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cinzel', serif; }
         body { background-color: var(--bg-dark); color: var(--text-main); padding: 20px; }
 
         header {
@@ -31,7 +33,7 @@
             border-bottom: 2px solid var(--border-color);
             padding-bottom: 15px;
         }
-        header h1 { color: var(--accent-gold); font-size: 2.2rem; text-transform: uppercase; letter-spacing: 2px; }
+        header h1 { color: #c5a059; font-size: 2.2rem; text-transform: uppercase; letter-spacing: 2px; font-weight: 900; }
 
         .dashboard-container {
             display: flex;
@@ -63,17 +65,18 @@
             border-radius: 6px;
             text-align: center;
         }
-        .clock-box .on-clock-team { font-size: 1rem; font-weight: bold; color: var(--accent-gold); }
+        .clock-box .on-clock-team { font-size: 0.9rem; font-weight: bold; color: #c5a059; }
         
-        .form-group { position: relative; min-width: 280px; }
-        .form-group label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 3px; }
+        .form-group { position: relative; min-width: 300px; }
+        .form-group label { display: block; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 3px; font-weight: 700; }
         .form-group input {
             width: 100%;
             padding: 8px 12px;
             background: var(--bg-dark);
             border: 1px solid var(--border-color);
-            color: var(--text-main);
+            color: #ffffff;
             border-radius: 4px;
+            font-size: 0.85rem;
         }
 
         /* Autocomplete Suggestions Box */
@@ -85,7 +88,7 @@
             background: var(--bg-dark);
             border: 1px solid var(--accent-gold);
             border-top: none;
-            max-height: 200px;
+            max-height: 220px;
             overflow-y: auto;
             z-index: 99;
             border-radius: 0 0 4px 4px;
@@ -93,13 +96,13 @@
         .autocomplete-item {
             padding: 8px 12px;
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             display: flex;
             justify-content: space-between;
             border-bottom: 1px solid var(--border-color);
         }
         .autocomplete-item:hover { background: rgba(243, 156, 18, 0.2); }
-        .item-meta { color: var(--text-muted); font-size: 0.75rem; }
+        .item-meta { color: var(--text-muted); font-size: 0.7rem; }
 
         .console-right {
             display: flex;
@@ -111,14 +114,18 @@
             border: 1px solid var(--border-color);
             padding: 8px 12px;
             border-radius: 4px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             min-width: 200px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
+        .btn-action-group {
+            display: flex;
+            gap: 8px;
+        }
         .btn-draft {
-            padding: 9px 20px;
+            padding: 9px 16px;
             background: var(--accent-gold);
             color: #000;
             font-weight: bold;
@@ -126,10 +133,26 @@
             border-radius: 4px;
             cursor: pointer;
             text-transform: uppercase;
+            font-size: 0.8rem;
             transition: opacity 0.2s;
         }
         .btn-draft:hover { opacity: 0.9; }
         .btn-draft:disabled { background: var(--text-muted); cursor: not-allowed; }
+
+        .btn-undo {
+            padding: 9px 14px;
+            background: #c0392b;
+            color: #fff;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            transition: opacity 0.2s;
+        }
+        .btn-undo:hover { opacity: 0.9; }
+        .btn-undo:disabled { background: var(--border-color); color: var(--text-muted); cursor: not-allowed; }
 
         /* Draft Board Grid */
         .board-wrapper {
@@ -149,7 +172,7 @@
             text-align: center;
             padding: 10px;
             font-weight: bold;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             border-bottom: 3px solid var(--accent-gold);
             border-radius: 4px;
             white-space: nowrap;
@@ -169,14 +192,14 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
         }
         .draft-cell.filled {
             border: 1px solid rgba(255,255,255,0.2);
             border-style: solid;
         }
         .pick-number {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             color: var(--text-muted);
         }
         .draft-cell.filled .pick-number { color: rgba(255,255,255,0.7); }
@@ -189,7 +212,7 @@
         }
         .pos-badge {
             align-self: flex-start;
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             padding: 2px 5px;
             border-radius: 3px;
             font-weight: bold;
@@ -217,13 +240,13 @@
         <div class="control-panel">
             <div class="console-left">
                 <div class="clock-box">
-                    <span style="font-size: 0.7rem; color: var(--text-muted);">PICK #<span id="display-pick-num">1</span></span>
+                    <span style="font-size: 0.65rem; color: var(--text-muted);">PICK #<span id="display-pick-num">1</span></span>
                     <div class="on-clock-team" id="display-on-clock">Team 1</div>
                 </div>
 
                 <div class="form-group">
                     <label for="player-search">Search Player to Draft</label>
-                    <input type="text" id="player-search" placeholder="Type player name..." autocomplete="off" oninput="filterPlayers()">
+                    <input type="text" id="player-search" placeholder="Type player name or position..." autocomplete="off" oninput="filterPlayers()">
                     <div id="autocomplete-results" class="autocomplete-list"></div>
                 </div>
             </div>
@@ -232,7 +255,10 @@
                 <div class="selected-preview" id="selected-preview">
                     <span style="color: var(--text-muted);">No player selected</span>
                 </div>
-                <button class="btn-draft" id="submit-btn" onclick="makePick()" disabled>Submit Pick</button>
+                <div class="btn-action-group">
+                    <button class="btn-undo" id="undo-btn" onclick="undoLastPick()" disabled>Undo Pick</button>
+                    <button class="btn-draft" id="submit-btn" onclick="makePick()" disabled>Submit</button>
+                </div>
             </div>
         </div>
 
@@ -243,7 +269,7 @@
     </div>
 
     <script>
-        // PASTE YOUR CLOUDFLARE WORKER URL HERE:
+        // PASTE YOUR CLOUDFLARE WORKER URL HERE (No trailing slash!):
         const WORKER_URL = 'https://gotdraft.a-diaz628.workers.dev';
 
         const totalTeams = 12;
@@ -259,26 +285,475 @@
 
         let picks = []; 
 
-        const playerPool = [
-            { name: "Patrick Mahomes", pos: "QB", team: "KC" },
-            { name: "Josh Allen", pos: "QB", team: "BUF" },
-            { name: "Jalen Hurts", pos: "QB", team: "PHI" },
-            { name: "Lamar Jackson", pos: "QB", team: "BAL" },
-            { name: "Christian McCaffrey", pos: "RB", team: "SF" },
-            { name: "Breece Hall", pos: "RB", team: "NYJ" },
-            { name: "Bijan Robinson", pos: "RB", team: "ATL" },
+        const rawPlayerPool = [
+            { name: "Jahmyr Gibbs", pos: "RB", team: "DET" },
             { name: "Ja'Marr Chase", pos: "WR", team: "CIN" },
-            { name: "CeeDee Lamb", pos: "WR", team: "DAL" },
-            { name: "Tyreek Hill", pos: "WR", team: "MIA" },
-            { name: "Justin Jefferson", pos: "WR", team: "MIN" },
+            { name: "Bijan Robinson", pos: "RB", team: "ATL" },
+            { name: "Puka Nacua", pos: "WR", team: "LAR" },
+            { name: "Jaxon Smith-Njigba", pos: "WR", team: "SEA" },
             { name: "Amon-Ra St. Brown", pos: "WR", team: "DET" },
-            { name: "Travis Kelce", pos: "TE", team: "KC" },
+            { name: "Jonathan Taylor", pos: "RB", team: "IND" },
+            { name: "James Cook III", pos: "RB", team: "BUF" },
+            { name: "CeeDee Lamb", pos: "WR", team: "DAL" },
+            { name: "Christian McCaffrey", pos: "RB", team: "SF" },
+            { name: "Justin Jefferson", pos: "WR", team: "MIN" },
+            { name: "A.J. Brown", pos: "WR", team: "PHI" },
+            { name: "Derrick Henry", pos: "RB", team: "BAL" },
+            { name: "Drake London", pos: "WR", team: "ATL" },
+            { name: "Nico Collins", pos: "WR", team: "HOU" },
+            { name: "Saquon Barkley", pos: "RB", team: "PHI" },
+            { name: "Brock Bowers", pos: "TE", team: "LV" },
+            { name: "George Pickens", pos: "WR", team: "DAL" },
+            { name: "Chase Brown", pos: "RB", team: "CIN" },
+            { name: "Kenneth Walker III", pos: "RB", team: "KC" },
+            { name: "Omarion Hampton", pos: "RB", team: "LAC" },
+            { name: "De'Von Achane", pos: "RB", team: "MIA" },
+            { name: "Chris Olave", pos: "WR", team: "NO" },
+            { name: "Josh Allen", pos: "QB", team: "BUF" },
+            { name: "Trey McBride", pos: "TE", team: "ARI" },
+            { name: "Malik Nabers", pos: "WR", team: "NYG" },
+            { name: "Ashton Jeanty", pos: "RB", team: "LV" },
+            { name: "Lamar Jackson", pos: "QB", team: "BAL" },
+            { name: "Zay Flowers", pos: "WR", team: "BAL" },
+            { name: "Kyren Williams", pos: "RB", team: "LAR" },
+            { name: "DeVonta Smith", pos: "WR", team: "PHI" },
+            { name: "Tee Higgins", pos: "WR", team: "CIN" },
+            { name: "Javonte Williams", pos: "RB", team: "DAL" },
+            { name: "Rashee Rice", pos: "WR", team: "KC" },
+            { name: "Drake Maye", pos: "QB", team: "NE" },
+            { name: "Colston Loveland", pos: "TE", team: "CHI" },
+            { name: "Emeka Egbuka", pos: "WR", team: "TB" },
+            { name: "Tetairoa McMillan", pos: "WR", team: "CAR" },
+            { name: "Ladd McConkey", pos: "WR", team: "LAC" },
+            { name: "Breece Hall", pos: "RB", team: "NYJ" },
+            { name: "Jaylen Waddle", pos: "WR", team: "DEN" },
+            { name: "Joe Burrow", pos: "QB", team: "CIN" },
+            { name: "Travis Etienne Jr.", pos: "RB", team: "NO" },
+            { name: "Jeremiyah Love", pos: "RB", team: "ARI" },
+            { name: "D'Andre Swift", pos: "RB", team: "CHI" },
+            { name: "Davante Adams", pos: "WR", team: "LAR" },
+            { name: "Jameson Williams", pos: "WR", team: "DET" },
+            { name: "Garrett Wilson", pos: "WR", team: "NYJ" },
+            { name: "Jayden Daniels", pos: "QB", team: "WAS" },
+            { name: "Luther Burden", pos: "WR", team: "CHI" },
+            { name: "Quinshon Judkins", pos: "RB", team: "CLE" },
+            { name: "Bucky Irving", pos: "RB", team: "TB" },
+            { name: "Cam Skattebo", pos: "RB", team: "NYG" },
+            { name: "David Montgomery", pos: "RB", team: "PHI" },
+            { name: "Jalen Hurts", pos: "QB", team: "PHI" },
+            { name: "Rome Odunze", pos: "WR", team: "CHI" },
+            { name: "DJ Moore", pos: "WR", team: "BUF" },
+            { name: "Jadarian Price", pos: "RB", team: "SEA" },
+            { name: "Bhayshul Tuten", pos: "RB", team: "JAC" },
+            { name: "Tucker Kraft", pos: "TE", team: "GB" },
+            { name: "Tyler Warren", pos: "TE", team: "IND" },
+            { name: "Mike Evans", pos: "WR", team: "SF" },
+            { name: "Caleb Williams", pos: "QB", team: "CHI" },
+            { name: "TreVeyon Henderson", pos: "RB", team: "NE" },
+            { name: "Justin Herbert", pos: "QB", team: "LAC" },
+            { name: "Parker Washington", pos: "WR", team: "JAC" },
+            { name: "Rhamondre Stevenson", pos: "RB", team: "NE" },
+            { name: "Marvin Harrison Jr.", pos: "WR", team: "ARI" },
+            { name: "Trevor Lawrence", pos: "QB", team: "JAC" },
+            { name: "Dak Prescott", pos: "QB", team: "DAL" },
+            { name: "Carnell Tate", pos: "WR", team: "TEN" },
+            { name: "Jaylen Warren", pos: "RB", team: "PIT" },
+            { name: "Brian Thomas Jr.", pos: "WR", team: "JAC" },
+            { name: "Tony Pollard", pos: "RB", team: "TEN" },
+            { name: "DK Metcalf", pos: "WR", team: "PIT" },
             { name: "Sam LaPorta", pos: "TE", team: "DET" },
+            { name: "Jonathan Brooks", pos: "RB", team: "CAR" },
+            { name: "Rico Dowdle", pos: "RB", team: "PIT" },
+            { name: "J.K. Dobbins", pos: "RB", team: "DEN" },
+            { name: "Blake Corum", pos: "RB", team: "LAR" },
+            { name: "Quentin Johnston", pos: "WR", team: "LAC" },
+            { name: "Courtland Sutton", pos: "WR", team: "DEN" },
+            { name: "Alec Pierce", pos: "WR", team: "IND" },
+            { name: "Kyle Pitts", pos: "TE", team: "ATL" },
+            { name: "MarShawn Lloyd", pos: "RB", team: "GB" },
+            { name: "Chris Godwin", pos: "WR", team: "TB" },
+            { name: "Harold Fanning", pos: "TE", team: "CLE" },
+            { name: "Jacory Croskey-Merritt", pos: "RB", team: "WAS" },
+            { name: "George Kittle", pos: "TE", team: "SF" },
+            { name: "Jordan Mason", pos: "RB", team: "MIN" },
+            { name: "Brock Purdy", pos: "QB", team: "SF" },
+            { name: "Bo Nix", pos: "QB", team: "DEN" },
+            { name: "Jaxson Dart", pos: "QB", team: "NYG" },
+            { name: "Dalton Kincaid", pos: "TE", team: "BUF" },
+            { name: "Chuba Hubbard", pos: "RB", team: "CAR" },
+            { name: "Michael Wilson", pos: "WR", team: "ARI" },
+            { name: "Patrick Mahomes", pos: "QB", team: "KC" },
+            { name: "Jordan Addison", pos: "WR", team: "MIN" },
+            { name: "Kyle Monangai", pos: "RB", team: "CHI" },
+            { name: "Jayden Reed", pos: "WR", team: "GB" },
+            { name: "Jared Goff", pos: "QB", team: "DET" },
+            { name: "Matthew Stafford", pos: "QB", team: "LAR" },
+            { name: "Michael Pittman Jr.", pos: "WR", team: "IND" },
+            { name: "Travis Kelce", pos: "TE", team: "KC" },
+            { name: "RJ Harvey", pos: "RB", team: "DEN" },
+            { name: "Makai Lemon", pos: "WR", team: "PHI" },
+            { name: "Dallas Goedert", pos: "TE", team: "PHI" },
+            { name: "Kyler Murray", pos: "QB", team: "ARI" },
+            { name: "Josh Downs", pos: "WR", team: "IND" },
+            { name: "Chris Rodriguez Jr.", pos: "RB", team: "JAX" },
+            { name: "Kenny Gainwell", pos: "RB", team: "TB" },
+            { name: "Isaiah Likely", pos: "TE", team: "BAL" },
+            { name: "Rachaad White", pos: "RB", team: "WAS" },
+            { name: "Stefon Diggs", pos: "WR", team: "WAS" },
+            { name: "Jordan Love", pos: "QB", team: "GB" },
+            { name: "Jakobi Meyers", pos: "WR", team: "JAC" },
+            { name: "Xavier Worthy", pos: "WR", team: "KC" },
+            { name: "Baker Mayfield", pos: "QB", team: "TB" },
             { name: "Mark Andrews", pos: "TE", team: "BAL" },
-            { name: "Justin Tucker", pos: "K", team: "BAL" },
-            { name: "San Francisco 49ers", pos: "DEF", team: "SF" },
-            { name: "Dallas Cowboys", pos: "DEF", team: "DAL" }
+            { name: "Aaron Jones", pos: "RB", team: "MIN" },
+            { name: "Wan'Dale Robinson", pos: "WR", team: "TEN" },
+            { name: "KC Concepcion", pos: "WR", team: "KC" },
+            { name: "Romeo Doubs", pos: "WR", team: "NE" },
+            { name: "Matthew Golden", pos: "WR", team: "GB" },
+            { name: "Tyler Allgeier", pos: "RB", team: "ARI" },
+            { name: "De'Zhaun Stribling", pos: "WR", team: "SF" },
+            { name: "Tyler Shough", pos: "QB", team: "NO" },
+            { name: "Woody Marks", pos: "RB", team: "HOU" },
+            { name: "Malik Willis", pos: "QB", team: "MIA" },
+            { name: "Jake Ferguson", pos: "TE", team: "DAL" },
+            { name: "Jalen Coker", pos: "WR", team: "CAR" },
+            { name: "Juwan Johnson", pos: "TE", team: "NO" },
+            { name: "Rashid Shaheed", pos: "WR", team: "SEA" },
+            { name: "Josh Jacobs", pos: "RB", team: "GB" },
+            { name: "Keaton Mitchell", pos: "RB", team: "LAC" },
+            { name: "Tank Bigsby", pos: "RB", team: "PHI" },
+            { name: "Deebo Samuel", pos: "WR", team: "SF" },
+            { name: "Jonah Coleman", pos: "RB", team: "DEN" },
+            { name: "Sam Darnold", pos: "QB", team: "SEA" },
+            { name: "Jordyn Tyson", pos: "WR", team: "NO" },
+            { name: "Zach Charbonnet", pos: "RB", team: "SEA" },
+            { name: "Khalil Shakir", pos: "RB", team: "BUF" },
+            { name: "Mike Washington", pos: "RB", team: "LV" },
+            { name: "C.J. Stroud", pos: "QB", team: "HOU" },
+            { name: "Daniel Jones", pos: "QB", team: "DEN" },
+            { name: "Tyjae Spears", pos: "RB", team: "TEN" },
+            { name: "Hunter Henry", pos: "TE", team: "NE" },
+            { name: "Brian Robinson Jr.", pos: "RB", team: "ATL" },
+            { name: "Braelon Allen", pos: "RB", team: "NYJ" },
+            { name: "Brenton Strange", pos: "TE", team: "JAC" },
+            { name: "Isiah Pacheco", pos: "RB", team: "DET" },
+            { name: "Denzel Boston", pos: "DST", team: "CLE" },
+            { name: "Houston Texans", pos: "DST", team: "HOU" },
+            { name: "Dylan Sampson", pos: "RB", team: "CLE" },
+            { name: "Tre Tucker", pos: "WR", team: "LV" },
+            { name: "Cam Ward", pos: "QB", team: "TEN" },
+            { name: "Tyrone Tracy Jr.", pos: "RB", team: "NYG" },
+            { name: "Kayshon Boutte", pos: "WR", team: "HOU" },
+            { name: "Chig Okonkwo", pos: "TE", team: "WAS" },
+            { name: "Adonai Mitchell", pos: "WR", team: "NYJ" },
+            { name: "Denver Broncos", pos: "DST", team: "DEN" },
+            { name: "Los Angeles Rams", pos: "DST", team: "LAR" },
+            { name: "Seattle Seahawks", pos: "DST", team: "SEA" },
+            { name: "Terrance Ferguson", pos: "TE", team: "LAR" },
+            { name: "Alvin Kamara", pos: "RB", team: "NO" },
+            { name: "Jalen McMillan", pos: "WR", team: "TB" },
+            { name: "Emmett Johnson", pos: "RB", team: "KC" },
+            { name: "Jerry Jeudy", pos: "WR", team: "CLE" },
+            { name: "Jauan Jennings", pos: "WR", team: "MIN" },
+            { name: "Dalton Schultz", pos: "TE", team: "HOU" },
+            { name: "Philadelphia Eagles", pos: "DST", team: "PHI" },
+            { name: "Bryce Young", pos: "QB", team: "CAR" },
+            { name: "Ray Davis", pos: "RB", team: "BUF" },
+            { name: "Dontayvion Wicks", pos: "WR", team: "PIT" },
+            { name: "Pittsburgh Steelers", pos: "DST", team: "PIT" },
+            { name: "Tre' Harris", pos: "WR", team: "LAC" },
+            { name: "New England Patriots", pos: "DST", team: "NE" },
+            { name: "Brandon Aubrey", pos: "K", team: "DAL" },
+            { name: "Ryan Flournoy", pos: "WR", team: "DAL" },
+            { name: "Jalen Nailor", pos: "WR", team: "LV" },
+            { name: "Minnesota Vikings", pos: "DST", team: "MIN" },
+            { name: "Omar Cooper Jr.", pos: "WR", team: "NYJ" },
+            { name: "Oronde Gadsden II", pos: "TE", team: "LAC" },
+            { name: "Jacksonville Jaguars", pos: "DST", team: "JAC" },
+            { name: "AJ Barner", pos: "TE", team: "SEA" },
+            { name: "Los Angeles Chargers", pos: "DST", team: "LAC" },
+            { name: "Kimani Vidal", pos: "RB", team: "LAC" },
+            { name: "Calvin Ridley", pos: "WR", team: "TEN" },
+            { name: "Cameron Dicker", pos: "K", team: "LAC" },
+            { name: "Ka'imi Fairbairn", pos: "K", team: "HOU" },
+            { name: "Nicholas Singleton", pos: "RB", team: "TEN" },
+            { name: "Baltimore Ravens", pos: "DST", team: "BAL" },
+            { name: "Pat Bryant", pos: "WR", team: "DEN" },
+            { name: "Cam Little", pos: "K", team: "JAC" },
+            { name: "Travis Hunter", pos: "WR", team: "JAC" },
+            { name: "Jason Myers", pos: "K", team: "SEA" },
+            { name: "Kenyon Sadiq", pos: "TE", team: "NYJ" },
+            { name: "Malik Washington", pos: "WR", team: "MIA" },
+            { name: "Jacoby Brissett", pos: "QB", team: "ARI" },
+            { name: "Kaelon Black", pos: "RB", team: "BAL" },
+            { name: "Kansas City Chiefs", pos: "DST", team: "KC" },
+            { name: "Rashod Bateman", pos: "WR", team: "BAL" },
+            { name: "Sean Tucker", pos: "RB", team: "TB" },
+            { name: "Keenan Allen", pos: "WR", team: "IND" },
+            { name: "Green Bay Packers", pos: "DST", team: "GB" },
+            { name: "Eddy Pineiro", pos: "K", team: "SF" },
+            { name: "Kaytron Allen", pos: "RB", team: "WAS" },
+            { name: "Jaylin Noel", pos: "WR", team: "HOU" },
+            { name: "Tyler Loop", pos: "K", team: "BAL" },
+            { name: "T.J. Hockenson", pos: "TE", team: "MIN" },
+            { name: "Isaac TeSlaa", pos: "WR", team: "DET" },
+            { name: "Detroit Lions", pos: "DST", team: "DET" },
+            { name: "Jake Bates", pos: "K", team: "DET" },
+            { name: "Emanuel Wilson", pos: "RB", team: "SEA" },
+            { name: "Jaylen Wright", pos: "RB", team: "MIA" },
+            { name: "Ja'Kobi Lane", pos: "WR", team: "BAL" },
+            { name: "Evan McPherson", pos: "K", team: "CIN" },
+            { name: "Pat Freiermuth", pos: "TE", team: "PIT" },
+            { name: "Darnell Moore", pos: "WR", team: "NYG" },
+            { name: "Cairo Santos", pos: "K", team: "CHI" },
+            { name: "Malik Davis", pos: "RB", team: "DAL" },
+            { name: "Aaron Rodgers", pos: "QB", team: "PIT" },
+            { name: "James Conner", pos: "RB", team: "ARI" },
+            { name: "Buffalo Bills", pos: "DST", team: "BUF" },
+            { name: "Gunnar Helm", pos: "TE", team: "TEN" },
+            { name: "Najee Harris", pos: "RB", team: "NYG" },
+            { name: "Harrison Mevis", pos: "K", team: "LAR" },
+            { name: "George Holani", pos: "RB", team: "SEA" },
+            { name: "Andy Borregales", pos: "K", team: "NE" },
+            { name: "Chase McLaughlin", pos: "K", team: "TB" },
+            { name: "Cooper Kupp", pos: "WR", team: "SEA" },
+            { name: "Troy Franklin", pos: "WR", team: "DEN" },
+            { name: "Tank Dell", pos: "WR", team: "HOU" },
+            { name: "Cleveland Browns", pos: "DST", team: "CLE" },
+            { name: "Zachariah Branch", pos: "WR", team: "ATL" },
+            { name: "Geno Smith", pos: "QB", team: "NYJ" },
+            { name: "Cade Otton", pos: "TE", team: "TB" },
+            { name: "David Njoku", pos: "TE", team: "CLE" },
+            { name: "Caleb Douglas", pos: "WR", team: "MIA" },
+            { name: "Germie Bernard", pos: "WR", team: "PIT" },
+            { name: "Greg Dulcich", pos: "TE", team: "MIA" },
+            { name: "Antonio Williams", pos: "WR", team: "WAS" },
+            { name: "Malachi Fields", pos: "WR", team: "NYG" },
+            { name: "Chris Brooks", pos: "RB", team: "GB" },
+            { name: "Kaleb Johnson", pos: "RB", team: "GB" },
+            { name: "Keon Coleman", pos: "WR", team: "BUF" },
+            { name: "Chris Bell", pos: "WR", team: "MIA" },
+            { name: "Harrison Butker", pos: "K", team: "KC" },
+            { name: "Demond Claiborne", pos: "RB", team: "MIN" },
+            { name: "Ollie Gordon II", pos: "RB", team: "MIA" },
+            { name: "Chris Boswell", pos: "K", team: "PIT" },
+            { name: "Jordan James", pos: "RB", team: "RB" },
+            { name: "Evan Engram", pos: "TE", team: "TEN" },
+            { name: "Ted Hurst III", pos: "WR", team: "TB" },
+            { name: "Justice Hill", pos: "RB", team: "BAL" },
+            { name: "Colby Parkinson", pos: "TE", team: "LAR" },
+            { name: "Elic Ayomanor", pos: "WR", team: "TEN" },
+            { name: "Samaje Perine", pos: "RB", team: "CIN" },
+            { name: "Chimere Dike", pos: "WR", team: "TEN" },
+            { name: "Devaughn Nelson", pos: "WR", team: "NO" },
+            { name: "Seth McGowan", pos: "RB", team: "IND" },
+            { name: "Tyquan Thornton", pos: "WR", team: "KC" },
+            { name: "Cyrus Allen", pos: "WR", team: "KC" },
+            { name: "Jack Bech", pos: "WR", team: "LV" },
+            { name: "Isaiah Davis", pos: "RB", team: "NYJ" },
+            { name: "Wil Lutz", pos: "K", team: "DEN" },
+            { name: "Will Reichard", pos: "K", team: "MIN" },
+            { name: "Ty Johnson", pos: "RB", team: "BUF" },
+            { name: "Kendre Miller", pos: "RB", team: "NO" },
+            { name: "Fernando Mendoza", pos: "QB", team: "LV" },
+            { name: "Tory Horton", pos: "WR", team: "SEA" },
+            { name: "Jaydon Blue", pos: "RB", team: "FA" },
+            { name: "Theo Johnson", pos: "TE", team: "NYG" },
+            { name: "Mason Taylor", pos: "TE", team: "NYJ" },
+            { name: "Darius Slayton", pos: "WR", team: "NYG" },
+            { name: "Elijah Saratt", pos: "WR", team: "BAL" },
+            { name: "Atlanta Falcons", pos: "DST", team: "ATL" },
+            { name: "Christian Kirk", pos: "WR", team: "SF" },
+            { name: "Eli Stowers", pos: "TE", team: "PHI" },
+            { name: "Xavier Legette", pos: "WR", team: "CAR" },
+            { name: "Tua Tagovailoa", pos: "QB", team: "ATL" },
+            { name: "Marvin Mims Jr.", pos: "WR", team: "DEN" },
+            { name: "DJ Giddens", pos: "RB", team: "IND" },
+            { name: "San Francisco 49ers", pos: "DST", team: "SF" },
+            { name: "LeQuint Allen", pos: "RB", team: "JAC" },
+            { name: "Adam Randall", pos: "RB", team: "BAL" },
+            { name: "Kyle Williams", pos: "WR", team: "NE" },
+            { name: "Michael Penix Jr.", pos: "QB", team: "ATL" },
+            { name: "Emari Demercado", pos: "RB", team: "FA" },
+            { name: "Deshaun Watson", pos: "QB", team: "CLE" },
+            { name: "Mike Gesicki", pos: "TE", team: "CIN" },
+            { name: "Kirk Cousins", pos: "QB", team: "LV" },
+            { name: "New Orleans Saints", pos: "DST", team: "NO" },
+            { name: "Devin Singletary", pos: "RB", team: "NYG" },
+            { name: "Hollywood Brown", pos: "WR", team: "PHI" },
+            { name: "Devin Neal", pos: "RB", team: "NO" },
+            { name: "Shedeur Sanders", pos: "QB", team: "CLE" },
+            { name: "Brashard Smith", pos: "RB", team: "KC" },
+            { name: "Jake Tonges", pos: "TE", team: "SF" },
+            { name: "Mack Hollins", pos: "WR", team: "NE" },
+            { name: "Indianapolis Colts", pos: "DST", team: "IND" },
+            { name: "Trey Benson", pos: "RB", team: "ARI" },
+            { name: "Brandon Aiyuk", pos: "WR", team: "SF" },
+            { name: "Skyler Bell", pos: "WR", team: "BUF" },
+            { name: "Isaiah Bond", pos: "WR", team: "CLE" },
+            { name: "Chicago Bears", pos: "DST", team: "CHI" },
+            { name: "Trevor Etienne", pos: "RB", team: "CAR" },
+            { name: "Darnell Washington", pos: "TE", team: "PIT" },
+            { name: "DeMario Douglas", pos: "WR", team: "NE" },
+            { name: "Jerome Ford", pos: "RB", team: "WAS" },
+            { name: "Tyreek Hill", pos: "WR", team: "FA" },
+            { name: "Charlie Smyth", pos: "K", team: "FA" },
+            { name: "Tahj Brooks", pos: "RB", team: "CIN" },
+            { name: "Isaac Guerendo", pos: "RB", team: "SF" },
+            { name: "Michael Mayer", pos: "TE", team: "LV" },
+            { name: "Audric Estime", pos: "RB", team: "NO" },
+            { name: "Oscar Delp", pos: "TE", team: "NO" },
+            { name: "Jahan Dotson", pos: "WR", team: "ATL" },
+            { name: "Charlie Kolar", pos: "TE", team: "LAC" },
+            { name: "Jaleel McLaughlin", pos: "RB", team: "FA" },
+            { name: "Will Shipley", pos: "RB", team: "PHI" },
+            { name: "Xavier Hutchinson", pos: "WR", team: "HOU" },
+            { name: "Elijah Arroyo", pos: "TE", team: "SEA" },
+            { name: "Dallas Cowboys", pos: "DST", team: "DAL" },
+            { name: "Jalen Tolbert", pos: "WR", team: "MIA" },
+            { name: "Cole Kmet", pos: "TE", team: "CHI" },
+            { name: "Bryce Langston", pos: "TE", team: "LAR" },
+            { name: "Dawson Knox", pos: "TE", team: "BUF" },
+            { name: "Carson Steele", pos: "QB", team: "ARI" },
+            { name: "Eli Raridon", pos: "TE", team: "NE" },
+            { name: "Luke McCaffrey", pos: "WR", team: "LAR" },
+            { name: "Konata Mumpfield", pos: "WR", team: "LAR" },
+            { name: "Erick All Jr.", pos: "TE", team: "CIN" },
+            { name: "Tez Johnson", pos: "WR", team: "TB" },
+            { name: "Kareem Hunt", pos: "RB", team: "FA" },
+            { name: "Kendrick Bourne", pos: "WR", team: "ARI" },
+            { name: "Max Klare", pos: "TE", team: "LAR" },
+            { name: "Noah Gray", pos: "TE", team: "KC" },
+            { name: "Chris Brazzell II", pos: "WR", team: "CAR" },
+            { name: "J.J. McCarthy", pos: "QB", team: "MIN" },
+            { name: "Olamide Zaccheaus", pos: "WR", team: "ATL" },
+            { name: "Josh Palmer", pos: "WR", team: "BUF" },
+            { name: "Cedric Tillman", pos: "WR", team: "FA" },
+            { name: "Jake Elliott", pos: "K", team: "PHI" },
+            { name: "Bam Knight", pos: "RB", team: "ARI" },
+            { name: "Treylon Burks", pos: "WR", team: "WAS" },
+            { name: "Tyler Bass", pos: "K", team: "BUF" },
+            { name: "Brennen Thompson", pos: "WR", team: "LAC" },
+            { name: "Mac Jones", pos: "QB", team: "SF" },
+            { name: "Ja'Tavion Sanders", pos: "TE", team: "CAR" },
+            { name: "Jalen Royals", pos: "WR", team: "KC" },
+            { name: "Carolina Panthers", pos: "DST", team: "CAR" },
+            { name: "New York Giants", pos: "DST", team: "NYG" },
+            { name: "Michael Carter", pos: "RB", team: "FA" },
+            { name: "Eli Heidenreich", pos: "WR", team: "PIT" },
+            { name: "Tampa Bay Buccaneers", pos: "DST", team: "TB" },
+            { name: "Malik Benson", pos: "WR", team: "LV" },
+            { name: "Ty Simpson", pos: "QB", team: "LAR" },
+            { name: "Justin Fields", pos: "QB", team: "KC" },
+            { name: "KaVontae Turpin", pos: "WR", team: "DAL" },
+            { name: "Roman Wilson", pos: "WR", team: "PIT" },
+            { name: "Raheem Sanders", pos: "RB", team: "CLE" },
+            { name: "Trey Smack", pos: "K", team: "GB" },
+            { name: "Jawhar Jordan", pos: "RB", team: "FA" },
+            { name: "Savion Williams", pos: "WR", team: "GB" },
+            { name: "Kalif Raymond", pos: "WR", team: "CHI" },
+            { name: "Kevin Coleman Jr.", pos: "WR", team: "MIA" },
+            { name: "Zavion Tomlin", pos: "WR", team: "CHI" },
+            { name: "Cincinnati Bengals", pos: "DST", team: "CIN" },
+            { name: "Justin Joly", pos: "TE", team: "FA" },
+            { name: "J'Mari Taylor", pos: "RB", team: "RB" },
+            { name: "Dont'e Thornton Jr.", pos: "WR", team: "LV" },
+            { name: "Anthony Richardson", pos: "QB", team: "IND" },
+            { name: "Roschon Johnson", pos: "RB", team: "CHI" },
+            { name: "Demarcus Robinson", pos: "WR", team: "SF" },
+            { name: "Colbie Young", pos: "WR", team: "CIN" },
+            { name: "Tennessee Titans", pos: "DST", team: "TEN" },
+            { name: "Tutu Atwell", pos: "WR", team: "LAR" },
+            { name: "Zane Gonzalez", pos: "K", team: "FA" },
+            { name: "Noah Fant", pos: "TE", team: "NO" },
+            { name: "Jaylin Lane", pos: "WR", team: "WAS" },
+            { name: "Devontae Washington", pos: "WR", team: "BAL" },
+            { name: "Daniel Carlson", pos: "K", team: "NO" },
+            { name: "Chad Ryland", pos: "K", team: "ARI" },
+            { name: "Luke Musgrave", pos: "TE", team: "GB" },
+            { name: "Tommy Tremble", pos: "TE", team: "CAR" },
+            { name: "Ashton Dulin", pos: "WR", team: "IND" },
+            { name: "Joey Slye", pos: "K", team: "TEN" },
+            { name: "John Metchie III", pos: "WR", team: "CAR" },
+            { name: "Jordan Whittington", pos: "WR", team: "LAR" },
+            { name: "Joe Flacco", pos: "QB", team: "CIN" },
+            { name: "Jameis Winston", pos: "QB", team: "NYG" },
+            { name: "Jacob Saylor", pos: "RB", team: "FA" },
+            { name: "Spencer Shrader", pos: "K", team: "IND" },
+            { name: "Daniel Bellinger", pos: "TE", team: "TEN" },
+            { name: "Blake Grupe", pos: "K", team: "FA" },
+            { name: "Rasheen Ali", pos: "RB", team: "BAL" },
+            { name: "Jam Miller", pos: "RB", team: "FA" },
+            { name: "Marcus Mariota", pos: "QB", team: "WAS" },
+            { name: "Nick Westbrook-Ikhine", pos: "WR", team: "FA" },
+            { name: "Barron Brown", pos: "WR", team: "NO" },
+            { name: "Ben Sinnott", pos: "TE", team: "WAS" },
+            { name: "CJ Daniels", pos: "WR", team: "LAR" },
+            { name: "Nick Folk", pos: "K", team: "LAR" },
+            { name: "Washington Commanders", pos: "DST", team: "WAS" },
+            { name: "Mitchell Evans", pos: "TE", team: "CAR" },
+            { name: "Sione Vaki", pos: "RB", team: "DET" },
+            { name: "Ryan Fitzgerald", pos: "K", team: "CAR" },
+            { name: "Austin Ekeler", pos: "RB", team: "FA" },
+            { name: "Miami Dolphins", pos: "DST", team: "MIA" },
+            { name: "Greg Dortch", pos: "WR", team: "FA" },
+            { name: "Damion Finch", pos: "K", team: "FA" },
+            { name: "Dyami Brown", pos: "WR", team: "WAS" },
+            { name: "Khalil Herbert", pos: "RB", team: "FA" },
+            { name: "Austin Hooper", pos: "TE", team: "ATL" },
+            { name: "Steven Steve", pos: "K", team: "WAS" },
+            { name: "Isaiah Williams", pos: "WR", team: "IND" },
+            { name: "Hunter Luepke", pos: "RB", team: "DAL" },
+            { name: "Jahdae Walker", pos: "WR", team: "CHI" },
+            { name: "Joe Milton III", pos: "QB", team: "DAL" },
+            { name: "Josh Williams", pos: "RB", team: "FA" },
+            { name: "Tommy Myers", pos: "TE", team: "FA" },
+            { name: "Dylan Laube", pos: "RB", team: "LV" },
+            { name: "Zach Ertz", pos: "TE", team: "FA" },
+            { name: "Jackson Hauck", pos: "TE", team: "BUF" },
+            { name: "Ronnie Rivers", pos: "RB", team: "LAR" },
+            { name: "Matt Hibner", pos: "TE", team: "BAL" },
+            { name: "DeAndre Hopkins", pos: "WR", team: "BAL" },
+            { name: "Jordan Watkins", pos: "WR", team: "SF" },
+            { name: "Elijah Moore", pos: "WR", team: "PHI" },
+            { name: "Tai Felton", pos: "WR", team: "MIN" },
+            { name: "Theo Wease", pos: "WR", team: "FA" },
+            { name: "Adam Trautman", pos: "TE", team: "DEN" },
+            { name: "Nate Boerkircher", pos: "TE", team: "JAC" },
+            { name: "Lew Nichols", pos: "RB", team: "FA" },
+            { name: "Will Kacmarek", pos: "TE", team: "MIA" },
+            { name: "Marquez Valdes-Scantling", pos: "WR", team: "FA" },
+            { name: "British Hooker", pos: "RB", team: "FA" },
+            { name: "Xavier Restrepo", pos: "WR", team: "TEN" },
+            { name: "Jacob Cowing", pos: "WR", team: "SF" },
+            { name: "Van Jefferson", pos: "WR", team: "FA" },
+            { name: "Tim Patrick", pos: "WR", team: "NYJ" },
+            { name: "Jaylen Reagor", pos: "WR", team: "CLE" },
+            { name: "Taylen Green", pos: "QB", team: "CLE" },
+            { name: "Tanner Koziol", pos: "TE", team: "JAC" },
+            { name: "Cash Jones", pos: "RB", team: "ATL" },
+            { name: "Chris Blair", pos: "WR", team: "ATL" },
+            { name: "Gardner Minshew", pos: "QB", team: "ARI" },
+            { name: "Riley Leonard", pos: "QB", team: "IND" },
+            { name: "Durham Smythe", pos: "TE", team: "BAL" },
+            { name: "Tyrod Taylor", pos: "QB", team: "ARI" },
+            { name: "Kene Nwangwu", pos: "RB", team: "NYJ" },
+            { name: "Josh Cameron", pos: "WR", team: "JAC" },
+            { name: "Frank Gore Jr.", pos: "RB", team: "FA" },
+            { name: "Brock Wragge", pos: "TE", team: "CHI" },
+            { name: "Miles Davis", pos: "RB", team: "FA" },
+            { name: "Lil'Jordan Humphrey", pos: "WR", team: "DEN" },
+            { name: "Drew Sample", pos: "TE", team: "CIN" },
+            { name: "Reggie Gilliam", pos: "RB", team: "NE" },
+            { name: "Velus Jones Jr.", pos: "WR", team: "FA" }
         ];
+
+        // Clean positions and map legacy tags
+        const playerPool = rawPlayerPool.map(p => {
+            let cleanPos = p.pos.replace(/[0-9]/g, '').trim();
+            if (cleanPos === 'DST') cleanPos = 'DEF';
+            return { name: p.name, pos: cleanPos, team: p.team };
+        });
 
         function buildGridStructure() {
             const grid = document.getElementById('draft-grid');
@@ -315,7 +790,6 @@
         function renderState(state) {
             if (!state) return;
             
-            // Only update if cloud state has picks or index matching/exceeding local to prevent overwriting active typing
             currentPickIndex = state.currentPickIndex || 0;
             picks = state.picks || [];
             if (state.teams) teams = state.teams;
@@ -359,7 +833,6 @@
             try {
                 const res = await fetch(`${WORKER_URL}/api/state`);
                 const state = await res.json();
-                // Only re-render from cloud if pick counts differ to prevent overwriting local actions mid-flight
                 if (state && state.currentPickIndex !== undefined) {
                     if (state.currentPickIndex !== currentPickIndex || state.picks.length !== picks.length) {
                         renderState(state);
@@ -394,7 +867,7 @@
             const filtered = playerPool.filter(p => 
                 !draftedNames.has(p.name) && 
                 (p.name.toLowerCase().includes(query) || p.pos.toLowerCase() === query)
-            );
+            ).slice(0, 15);
 
             filtered.forEach(player => {
                 const item = document.createElement('div');
@@ -426,6 +899,9 @@
         }
 
         function updateConsole() {
+            const undoBtn = document.getElementById('undo-btn');
+            undoBtn.disabled = picks.length === 0;
+
             if (currentPickIndex >= totalTeams * totalRounds) {
                 document.getElementById('display-pick-num').innerText = "DONE";
                 document.getElementById('display-on-clock').innerText = "Draft Complete!";
@@ -433,6 +909,7 @@
                 return;
             }
 
+            document.getElementById('player-search').disabled = false;
             const currentPickNum = currentPickIndex + 1;
             document.getElementById('display-pick-num').innerText = currentPickNum;
 
@@ -443,7 +920,6 @@
         async function makePick() {
             if (!selectedPlayer || currentPickIndex >= totalTeams * totalRounds) return;
 
-            // 1. Update local array immediately
             picks.push({
                 name: selectedPlayer.name,
                 position: selectedPlayer.pos,
@@ -453,24 +929,36 @@
 
             currentPickIndex++;
 
-            // 2. Clear inputs immediately
-            const activePlayer = selectedPlayer;
             selectedPlayer = null;
             document.getElementById('player-search').value = '';
             document.getElementById('selected-preview').innerHTML = '<span style="color: var(--text-muted);">No player selected</span>';
             document.getElementById('submit-btn').disabled = true;
 
-            // 3. Force instant local UI render so it appears instantly without waiting for cloud round-trip
             renderState({ currentPickIndex, picks, teams });
+            await syncStateToCloud();
+        }
 
-            // 4. Push update to Cloudflare KV in background
+        async function undoLastPick() {
+            if (picks.length === 0) return;
+
+            // Remove the latest pick and roll back index
+            picks.pop();
+            currentPickIndex = Math.max(0, currentPickIndex - 1);
+
+            selectedPlayer = null;
+            document.getElementById('player-search').value = '';
+            document.getElementById('selected-preview').innerHTML = '<span style="color: var(--text-muted);">No player selected</span>';
+            document.getElementById('submit-btn').disabled = true;
+
+            renderState({ currentPickIndex, picks, teams });
             await syncStateToCloud();
         }
 
         window.onload = async () => {
             buildGridStructure();
             await fetchStateFromCloud();
-            // Poll Cloudflare every 2 seconds for background sync from other users
             setInterval(fetchStateFromCloud, 2000);
         };
     </script>
+</body>
+</html>
