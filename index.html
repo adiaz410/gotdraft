@@ -761,36 +761,45 @@
             return { name: p.name, pos: cleanPos, team: p.team };
         });
 
-        function buildGridStructure() {
-            const grid = document.getElementById('draft-grid');
-            grid.innerHTML = '';
+       function buildGridStructure() {
+    const grid = document.getElementById('draft-grid');
+    grid.innerHTML = '';
 
-            teams.forEach((team, index) => {
-                const header = document.createElement('div');
-                header.className = 'team-header';
-                header.contentEditable = true;
-                header.innerText = team;
-                header.onblur = (e) => { 
-    updateTeamName(index, e.target.innerText);
-};
-                grid.appendChild(header);
-            });
-
-            for (let r = 0; r < totalRounds; r++) {
-                for (let t = 0; t < totalTeams; t++) {
-                    const colIndex = (r % 2 === 0) ? t : (totalTeams - 1 - t);
-                    const cell = document.createElement('div');
-                    cell.className = 'draft-cell';
-                    cell.id = `cell-${r}-${colIndex}`;
-                    
-                    cell.innerHTML = `
-                        <span class="pick-number">R${r+1} (P${(r * totalTeams) + t + 1})</span>
-                        <div class="cell-content" id="content-${r}-${colIndex}"></div>
-                    `;
-                    grid.appendChild(cell);
-                }
+    teams.forEach((team, index) => {
+        const header = document.createElement('div');
+        header.className = 'team-header';
+        header.contentEditable = true;
+        header.innerText = team;
+        
+        // Save changes when clicking away or pressing Enter
+        header.onblur = (e) => { 
+            updateTeamName(index, e.target.innerText); 
+        };
+        header.onkeydown = (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                header.blur(); // Triggers onblur and saves
             }
+        };
+
+        grid.appendChild(header);
+    });
+
+    for (let r = 0; r < totalRounds; r++) {
+        for (let t = 0; t < totalTeams; t++) {
+            const colIndex = (r % 2 === 0) ? t : (totalTeams - 1 - t);
+            const cell = document.createElement('div');
+            cell.className = 'draft-cell';
+            cell.id = `cell-${r}-${colIndex}`;
+            
+            cell.innerHTML = `
+                <span class="pick-number">R${r+1} (P${(r * totalTeams) + t + 1})</span>
+                <div class="cell-content" id="content-${r}-${colIndex}"></div>
+            `;
+            grid.appendChild(cell);
         }
+    }
+}
 
         function renderState(state) {
             if (!state) return;
@@ -833,6 +842,20 @@
 
             updateConsole();
         }
+
+async function updateTeamName(index, newName) {
+    const cleanedName = newName.trim();
+    if (!cleanedName) return;
+    
+    teams[index] = cleanedName;
+    
+    // Immediately update the console banner if it's this team's turn
+    updateConsole();
+    
+    // Sync to cloud and broadcast to other tabs
+    await syncStateToCloud();
+    draftChannel.postMessage({ currentPickIndex, picks, teams });
+}
 
 async function updateTeamName(index, newName) {
     teams[index] = newName.trim();
