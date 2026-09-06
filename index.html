@@ -771,9 +771,8 @@
                 header.contentEditable = true;
                 header.innerText = team;
                 header.onblur = (e) => { 
-                    teams[index] = e.target.innerText.trim(); 
-                    syncStateToCloud(); 
-                };
+    updateTeamName(index, e.target.innerText);
+};
                 grid.appendChild(header);
             });
 
@@ -835,6 +834,12 @@
             updateConsole();
         }
 
+async function updateTeamName(index, newName) {
+    teams[index] = newName.trim();
+    renderState({ currentPickIndex, picks, teams });
+    await syncStateToCloud();
+    draftChannel.postMessage({ currentPickIndex, picks, teams });
+}
         async function fetchStateFromCloud() {
             try {
                 const res = await fetch(`${WORKER_URL}/api/state`);
