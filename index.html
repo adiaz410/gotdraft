@@ -272,6 +272,12 @@
         // PASTE YOUR CLOUDFLARE WORKER URL HERE (No trailing slash!):
         const WORKER_URL = 'https://gotdraft.a-diaz628.workers.dev';
 
+        // --- INSTANT TAB-TO-TAB SYNC CHANNEL ---
+        const draftChannel = new BroadcastChannel('got_draft_sync');
+        draftChannel.onmessage = (event) => {
+            renderState(event.data);
+        };
+
         const totalTeams = 12;
         const totalRounds = 16;
         let currentPickIndex = 0;
@@ -936,6 +942,9 @@
 
             renderState({ currentPickIndex, picks, teams });
             await syncStateToCloud();
+            
+            // Broadcast update to other local tabs instantly
+            draftChannel.postMessage({ currentPickIndex, picks, teams });
         }
 
         async function undoLastPick() {
@@ -952,12 +961,16 @@
 
             renderState({ currentPickIndex, picks, teams });
             await syncStateToCloud();
+            
+            // Broadcast update to other local tabs instantly
+            draftChannel.postMessage({ currentPickIndex, picks, teams });
         }
 
         window.onload = async () => {
             buildGridStructure();
             await fetchStateFromCloud();
-            setInterval(fetchStateFromCloud, 2000);
+            // Poll the cloud every 1 second for separate devices
+            setInterval(fetchStateFromCloud, 1000);
         };
     </script>
 </body>
